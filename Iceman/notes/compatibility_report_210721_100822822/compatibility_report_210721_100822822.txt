@@ -1,0 +1,8 @@
+Windows NSIS Installer Script has been set to default due to changes in GameMaker Studio 2
+Missing audiogroup for sound: 'snd_chui' - setting to default audio group
+Missing audiogroup for sound: 'snd_dead' - setting to default audio group
+Missing audiogroup for sound: 'snd_ding' - setting to default audio group
+Missing audiogroup for sound: 'snd_jump' - setting to default audio group
+Missing audiogroup for sound: 'snd_luo1' - setting to default audio group
+Missing audiogroup for sound: 'snd_luo2' - setting to default audio group
+Missing audiogroup for sound: 'snd_music' - setting to default audio group

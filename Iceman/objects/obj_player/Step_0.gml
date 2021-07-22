@@ -1,0 +1,167 @@
+/// @description Insert description here
+// You can write your code in this editor
+//***临时变量
+var dx,psp,tmp;
+dx=0;//左右按键状态
+psp=0.75;//移动速度
+//***死亡状态
+if(state==-1)
+{
+	timer+=1;
+	if(timer>120)game_restart();
+	exit;
+}
+
+//***按键判断
+if(state==0&&jump==0)
+{
+	//右移动
+	if(keyboard_check(ord("D")))
+	{
+		dx=1;
+		sprite_index=spr_player_walk;
+		image_index+=0.25;
+		face=1;
+	}
+	else//***左移动
+	if(keyboard_check(ord("A")))
+	{
+		dx=-1;
+		sprite_index=spr_player_walk;
+		image_index+=0.25;
+		face=-1;
+	}
+	else sprite_index=spr_player_stand;
+	
+	//***下砸
+	if(keyboard_check_pressed(ord("J")))
+	{
+		state=1;
+		timer=15;//动作持续15帧
+		sprite_index=spr_player_chui;
+		//audio_play_sound(snd_chui,0,false);
+	}
+	else//***跳跃
+	if(keyboard_check_pressed(ord("K")))
+	{
+		face=dx;
+		jump=1;
+		direction=90;
+		speed=4.5;
+		gravity=0.2;
+		audio_play_sound(snd_jump,0,false);
+		sprite_index=spr_player_jump;
+	}
+}
+//***跳跃检测
+if(jump==1)
+{
+	x+=face*0.4;
+	if(speed>8)speed=8;
+	//***上跳判断
+	if(direction==90)
+	{
+		//***动画转换
+		if(speed<1)
+		{
+			image_index=1;
+		}
+		//***敲墙检测
+		tmp=collision_point(x,y-24,obj_wall_father,0,0);
+		if(tmp)
+		{
+			//***被敲碎
+			 if(tmp.sprite_index!=spr_wall_wudi)
+			 {
+				var tmp2;
+				tmp2=instance_create_depth(tmp.x,tmp.y,100,obj_break);
+				tmp2.sprite_index=tmp.brk;
+				tmp2.face=image_xscale;
+				instance_destroy(tmp);
+			 }
+			 audio_play_sound(snd_ding,0,false);
+			 speed=0;
+			 image_index=1;
+		}
+	}
+	//***下落检测
+	if(direction==270)
+	{
+		//***跳跃中改变方向
+		if(face==0)
+		{
+			if(keyboard_check(ord("A"))){face=-1;image_xscale=-1;}
+			if(keyboard_check(ord("D"))){face=1;image_xscale=1;}
+		}
+		//***落地判断
+		tmp=collision_point(x,y,obj_wall_father,0,0);
+		if(tmp)
+		{
+			jump=0;
+			speed=0;
+			gravity=0;
+			y=tmp.y-1;
+			sprite_index=spr_player_stand;
+		}
+	}
+}
+
+
+
+
+//***敲击判断
+if(state==1)
+{
+	image_index+=0.2;
+	//***敲击结束
+	if(timer<=0)
+	{
+		state=0;
+		sprite_index=spr_player_stand;
+	}
+	//***敲击海狮
+	tmp=collision_rectangle(x-12,y,x+12,y-28,obj_haishi,0,0);
+	if(tmp)
+	if(tmp.state==0)
+	{
+			tmp.state=1;
+			audio_play_sound(snd_chui,0,false);
+	}
+	timer-=1;
+}
+else//***碰撞海狮
+{
+	tmp=collision_rectangle(x-8,y,x+8,y-16,obj_haishi,0,0);
+	if(tmp)
+	if(tmp.state==0)
+	{
+		state=-1;
+		sprite_index=spr_player_dead;
+		image_speed=0.2;
+		speed=2;
+		gravity=0.2
+		direction=90;
+		audio_play_sound(snd_dead,0,false);
+	}
+}
+//***脚下判断
+if(jump==0)
+{
+	tmp=collision_point(x,y+1,obj_wall_father,0,0);
+	if(!tmp)
+	{
+		jump=1;
+		gravity=0.2;
+		sprite_index=spr_player_jump;
+		image_index=1;
+	}
+}
+
+//***坐标变化
+x+=dx*psp;
+//方向变化
+if(dx!=0)image_xscale=face;
+//***坐标限制
+if(x<0)x=room_width;
+if(x>room_width)x=0;
+
